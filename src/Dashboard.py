@@ -18,11 +18,13 @@ class Dashboard:
 	topics: list
 	data: dict
 	connector: Connector
+	stop: bool
 
 	def __init__(self, console: Console, connector: Connector, topics: list):
 		self.topics = topics
 		self.console = console
 		self.connector = connector
+		self.stop = False
 		self.data = {}
 	
 		def update(topic, value):
@@ -59,14 +61,14 @@ class Dashboard:
 			self.connector.on_connection = lambda: progress.advance(taskId)
 			self.connector.connect()
 
-			while not progress.finished:
+			while not progress.finished and not self.stop:
 				time.sleep(1)
 			
 
 
 	def main_page(self):
 		with Live(console=self.console, refresh_per_second=5) as live:
-			while True:
+			while not self.stop:
 				table = Table(expand=True, box=box.SIMPLE_HEAD)
 
 				table.add_column("Topic", width=15, justify="left")
